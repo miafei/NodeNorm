@@ -79,7 +79,7 @@ class GNNBasicBlock(nn.Module):
             x1 = self.activation(x1)
             x = x1 + x
         elif self.block_type == 'b_a': # batchnorm then activation
-            x = self.batch_norm(x)
+            x = self.batch_norm(x1)
             x = self.activation(x)
         elif self.block_type == 'n_a': # nodenorm then activation
             x = self.node_norm(x1)
