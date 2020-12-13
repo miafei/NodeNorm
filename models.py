@@ -10,6 +10,7 @@ class GNN(nn.Module):
         self.structure = nn.Sequential()
         self.aggregator = {}
         self.num_classes = config['data']['num_classes']
+        self.normalization = config['arch']['norm']
         self.construct_from_blocks()
         self.layer_names = [each[0] for each in list(self.structure.named_children())]
         self.batch_size = config['optim']['batch_size']
@@ -33,6 +34,7 @@ class GNN(nn.Module):
                     f'{l}_{layer_type}', GNNBasicBlock(layer_type=layer_type,
                                                        block_type=block_type,
                                                        activation=activation,
+                                                       normalization=self.normalization,
                                                        in_channels=in_channels,
                                                        out_channels=out_channels,
                                                        bias=bias,
@@ -48,6 +50,7 @@ class GNN(nn.Module):
                     f'{l}_gat', GNNBasicBlock(layer_type='gat',
                                               block_type=block_type,
                                               activation=activation,
+                                              normalization=self.normalization,
                                               in_channels=in_channels,
                                               out_channels=out_channels,
                                               num_heads=num_heads,
