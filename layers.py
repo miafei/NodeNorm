@@ -4,16 +4,70 @@ import dgl.nn.pytorch as dglnn
 
 
 class NodeNorm(nn.Module):
-    def __init__(self, unbiased=False, eps=1e-5):
+    def __init__(self, nn_type="n", unbiased=False, eps=1e-5, power_root=2):
         super(NodeNorm, self).__init__()
         self.unbiased = unbiased
         self.eps = eps
+        self.nn_type = nn_type
+        self.power = 1 / power_root
 
     def forward(self, x):
-        mean = torch.mean(x, dim=1, keepdim=True)
-        std = (torch.var(x, unbiased=self.unbiased, dim=1, keepdim=True) + self.eps).sqrt()
-        x = (x - mean) / std
+        if self.nn_type == "n":
+            mean = torch.mean(x, dim=1, keepdim=True)
+            std = (
+                torch.var(x, unbiased=self.unbiased, dim=1, keepdim=True) + self.eps
+            ).sqrt()
+            x = (x - mean) / std
+        elif self.nn_type == "v":
+            std = (
+                torch.var(x, unbiased=self.unbiased, dim=1, keepdim=True) + self.eps
+            ).sqrt()
+            x = x / std
+        elif self.nn_type == "m":
+            mean = torch.mean(x, dim=1, keepdim=True)
+            x = x - mean
+        elif self.nn_type == "srv":  # squre root of variance
+            std = (
+                torch.var(x, unbiased=self.unbiased, dim=1, keepdim=True) + self.eps
+            ).sqrt()
+            x = x / torch.sqrt(std)
+        elif self.nn_type == "pr":
+            std = (
+                torch.var(x, unbiased=self.unbiased, dim=1, keepdim=True) + self.eps
+            ).sqrt()
+            x = x / torch.pow(std, self.power)
         return x
+
+    def __repr__(self):
+        original_str = super().__repr__()
+        components = list(original_str)
+        nn_type_str = f"nn_type={self.nn_type}"
+        components.insert(-1, nn_type_str)
+        new_str = "".join(components)
+        return new_str
+
+def get_normalization(norm_type, num_channels=None):
+    if norm_type is None:
+        norm = None
+    elif norm_type == "batch":
+        norm = nn.BatchNorm1d(num_features=num_channels)
+    elif norm_type == "node_n":
+        norm = NodeNorm(nn_type="n")
+    elif norm_type == "node_v":
+        norm = NodeNorm(nn_type="v")
+    elif norm_type == "node_m":
+        norm = NodeNorm(nn_type="m")
+    elif norm_type == "node_srv":
+        norm = NodeNorm(nn_type="srv")
+    elif norm_type.find("node_pr") != -1:
+        power_root = norm_type.split("_")[-1]
+        power_root = int(power_root)
+        norm = NodeNorm(nn_type="pr", power_root=power_root)
+    elif norm_type == "layer":
+        norm = nn.LayerNorm(normalized_shape=num_channels)
+    else:
+        raise NotImplementedError
+    return norm
 
 
 class GNNBasicBlock(nn.Module):
@@ -58,10 +112,10 @@ class GNNBasicBlock(nn.Module):
         else:
             raise NotImplementedError
             
-        if 'b' in block_type.split('_'):
-            self.batch_norm = nn.BatchNorm1d(num_features=core_layer_hyperparms['out_channels'])
         if 'n' in block_type.split('_'):
-            self.node_norm = NodeNorm()
+            self.node_norm = get_normalization(
+                        norm_type=normalization, num_channels=core_layer_hyperparms['out_channels']
+                    )
         self.block_type_str = self.get_block_type_str()
 
     def forward(self, graph, x):
@@ -78,16 +132,9 @@ class GNNBasicBlock(nn.Module):
         elif self.block_type == 'a_r': # activation then adding residual link
             x1 = self.activation(x1)
             x = x1 + x
-        elif self.block_type == 'b_a': # batchnorm then activation
-            x = self.batch_norm(x1)
-            x = self.activation(x)
         elif self.block_type == 'n_a': # nodenorm then activation
             x = self.node_norm(x1)
             x = self.activation(x)
-        elif self.block_type == 'b_a_r': # batchnorm, activation then adding residual link
-            x1 = self.batch_norm(x1)
-            x1 = self.activation(x1)
-            x = x1 + x
         elif self.block_type == 'n_a_r': # nodenorm, activation then adding residual link
             x1 = self.node_norm(x1)
             x1 = self.activation(x1)
@@ -99,14 +146,10 @@ class GNNBasicBlock(nn.Module):
             block_type_str = 'vallina'
         elif self.block_type == 'a_r':
             block_type_str = 'activation_residual'
-        elif self.block_type == 'b_a':
-            block_type_str = 'batchnorm_activation'
-        elif self.block_type == 'b_a_r':
-            block_type_str = 'batchnorm_activation_residual'
         elif self.block_type == 'n_a_r':
-            block_type_str = 'node_normalization_activation_residual'
+            block_type_str = 'normalization_activation_residual'
         elif self.block_type == 'n_a':
-            block_type_str = 'node_normalization_activation'
+            block_type_str = 'normalization_activation'
         else:
             raise NotImplementedError
 
