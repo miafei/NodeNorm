@@ -71,7 +71,7 @@ def get_normalization(norm_type, num_channels=None):
 
 
 class GNNBasicBlock(nn.Module):
-    def __init__(self, layer_type, block_type, activation, **core_layer_hyperparms):
+    def __init__(self, layer_type, block_type, activation, normalization=None, **core_layer_hyperparms):
         super(GNNBasicBlock, self).__init__()
         self.layer_type = layer_type
         self.block_type = block_type
