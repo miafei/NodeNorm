@@ -94,7 +94,7 @@ def cfg():
         'implement': 'dgl',
         'num_hiddens': 64,
         'num_layers': 2,
-        'norm': 'node_v',
+        'norm': 'node_n',
         'weight_sharing': False,
         'activation': ('relu', False),
         'bias': True,
