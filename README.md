@@ -1,4 +1,5 @@
 # Effective Training Strategies for Deep Graph Neural Networks
+https://arxiv.org/abs/2006.07107
 
 ## Eligible Version of Python and Related Packages
 
