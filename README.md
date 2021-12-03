@@ -1,5 +1,5 @@
-# Effective Training Strategies for Deep Graph Neural Networks
-https://arxiv.org/abs/2006.07107
+# NodeNorm - Understanding and Resolving Performance Degradation in Deep Convolutional Graph Neural Networks
+Official pytorch code for NodeNorm [paper](https://arxiv.org/pdf/2006.07107.pdf) (CIKM 2021)  
 
 ## Eligible Version of Python and Related Packages
 
@@ -61,6 +61,19 @@ By setteing 'data.random_split.use=False', we can use the commonly used split fo
 We may set 'arch.nn=False' to switch off NodeNorm for the first layer.
 
 In our code, we use the DGL library for building our GNN architectures and the Pytorch_Geometric library for providing data.
+
+
+## cite 
+If you use our code, please cite
+```
+@inproceedings{zhou2021understanding,
+  title={Understanding and Resolving Performance Degradation in Deep Graph Convolutional Networks},
+  author={Zhou, Kuangqi and Dong, Yanfei and Wang, Kaixin and Lee, Wee Sun and Hooi, Bryan and Xu, Huan and Feng, Jiashi},
+  booktitle={Proceedings of the 30th ACM International Conference on Information \& Knowledge Management},
+  pages={2728--2737},
+  year={2021}
+}
+```
 
 
 ***
