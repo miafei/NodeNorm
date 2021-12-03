@@ -1,4 +1,4 @@
-# NodeNorm - Understanding and Resolving Performance Degradation in Deep Convolutional Graph Neural Networks
+# NodeNorm - Understanding and Resolving Performance Degradation in Deep Graph Convolutional Networks
 Official pytorch code for NodeNorm [paper](https://arxiv.org/pdf/2006.07107.pdf) (CIKM 2021)  
 
 ## Eligible Version of Python and Related Packages
