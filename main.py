@@ -164,7 +164,7 @@ def main(_run, _config, _log):
         last_acc_list.append(last_pred_dict['test acc'].item())
         train_best_list.append(best_state['train acc'].item())
         train_last_list.append(train_accs[-1].item())
-        best_epoch.append(best_state['epoch'])
+
 
     logger.info('********************* STATISTICS *********************')
     np.set_printoptions(precision=4, suppress=True)
@@ -172,9 +172,6 @@ def main(_run, _config, _log):
                 f"Best test acc: {best_acc_list}\n"
                 f"Mean: {np.mean(best_acc_list)}\t"
                 f"Std: {np.std(best_acc_list)}\n"
-                f"Last test acc: {last_acc_list}\n"
-                f"Mean: {np.mean(last_acc_list)}\t"
-                f"Std: {np.std(last_acc_list)}\n"
                 )
 
-    logger.info(f"best epoch: {best_epoch}")
+
